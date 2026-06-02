@@ -1,0 +1,91 @@
+@startuml ChangeMe
+' ============================================================
+'  TBC THEME (วาง inline บนสุดเสมอ — ห้าม !include)
+' ============================================================
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam dpi 150
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam maxMessageSize 240
+skinparam wrapWidth 240
+skinparam sequence {
+  ArrowColor #2C3E50
+  ArrowFontColor #2C3E50
+  LifeLineBorderColor #B0BEC5
+  LifeLineBackgroundColor #ECEFF1
+  ParticipantBorderColor #34495E
+  ParticipantBackgroundColor #ECEFF1
+  ParticipantFontColor #1A2530
+  ParticipantFontStyle bold
+  ActorBorderColor #34495E
+  ActorBackgroundColor #FFFFFF
+  ActorFontColor #1A2530
+  GroupBackgroundColor #E3E9F0
+  GroupBorderColor #34495E
+  GroupHeaderFontColor #1A2530
+  DividerBackgroundColor #34495E
+  DividerFontColor #FFFFFF
+}
+
+' ============================================================
+'  METADATA  (แก้ค่าในวงเล็บ [...] ให้ครบ)
+' ============================================================
+title **[ชื่อ Flow]**\n[อธิบายสั้น ๆ 1 บรรทัดว่า flow นี้คืออะไร]
+header v[1.0]  |  [YYYY-MM-DD]
+footer จัดทำโดย [ชื่อผู้ทำ]   ·   [ทีม/บริษัท]
+
+' ---------- ผู้เกี่ยวข้อง: actor = คน, participant = ระบบ ----------
+actor "User\n(ลูกค้า)"      as User
+actor "Staff\n(พนักงาน)"    as Staff
+participant "🖥️ POS"        as POS
+participant "💬 LINE OA"     as LINE
+participant "⚙️ CRM (Backend)" as CRM
+
+' หมายเหตุ: "ข้อมูลเอกสาร" + "Status Legend" ไม่อยู่ในรูปไดอะแกรม
+' แต่อยู่ในไฟล์คำอธิบายแยก (.md) — ใช้ description-template.md เป็นแบบ
+
+autonumber "0."
+
+' ============================================================
+'  เนื้อหา FLOW
+' ============================================================
+== ส่วนที่ 1: [ชื่อช่วง] ==
+
+User -> Staff : [ทำอะไร]
+activate Staff
+Staff -> POS : [ส่ง/บันทึกอะไร]
+activate POS
+POS --> Staff : [ตอบกลับอะไร]
+deactivate POS
+Staff --> User : [แจ้งผล]
+deactivate Staff
+
+' ----- บอกสถานะที่ User เห็น ณ จุดนี้ -----
+note over User #FFF3CD
+  📱 **สถานะที่ User เห็น:** "รอตรวจสอบ (Pending)"
+end note
+
+== ส่วนที่ 2: [ชื่อช่วง — มีเงื่อนไข] ==
+
+User -> CRM : [ส่งคำขอ]
+activate CRM
+CRM -> CRM : [ตรวจสอบเงื่อนไข]
+
+alt [เงื่อนไข: ผ่าน/มีสิทธิ์]
+    CRM --> User : [ผลลัพธ์สำเร็จ]
+    note over User #D4EDDA
+      📱 **สถานะ:** "อนุมัติแล้ว (Approved)"
+      ⚡ **Trigger:** [พอเป็นสถานะนี้ ระบบทำอะไรต่อ — เช่น ส่ง LINE แจ้งเตือน + เปิดปุ่ม "รับสิทธิ์"]
+    end note
+else [เงื่อนไข: ไม่ผ่าน/ไม่มีสิทธิ์]
+    CRM --> User : [แจ้งข้อผิดพลาด]
+    note over User #F8D7DA
+      📱 **สถานะ:** "ถูกปฏิเสธ (Rejected)"
+      ⚡ **Trigger:** [ระบบทำอะไรต่อ — เช่น ให้กดลองใหม่]
+    end note
+end
+deactivate CRM
+
+@enduml
